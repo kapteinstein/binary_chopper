@@ -1,0 +1,20 @@
+BinaryChopper
+=============
+
+This program takes any file, cut it up into smaller pieces and then merges those
+pieces back again into the original file at some later time. Usefull for sending
+large email attatchments or transfering large files over multiple smaller
+storage units.
+
+Build with `make` from the top directory.
+
+Examples:
+To cut a file into 4 pieces, execute:
+  ./prog --cut 4 --file example.file
+
+To merge those files againg, simply execute (from within the directory of the
+data<num>.bin files):
+  ./prog --merge
+
+
+Erik Liodden
