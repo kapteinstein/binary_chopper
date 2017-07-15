@@ -12,11 +12,12 @@
 #include <string.h>
 #include "merge.h"
 #include "file.h"
+#include "error.h"
 
 
 int merge_chunks(char *file_name)
 {
-	int id_next, bytes=0;
+	int id_next, n;
 	FILE *fp_out = NULL;
 	FILE *fp_chunk;
 	uint64_t size;
@@ -26,7 +27,8 @@ int merge_chunks(char *file_name)
 
 	do {
 		fp_chunk = open_file(buffer, "rb");
-		fread(buffer, 1, HEADER_SIZE, fp_chunk);
+		if (fread(buffer, 1, HEADER_SIZE, fp_chunk) != HEADER_SIZE)
+			error(errno, "Could not read header");
 		sscanf(buffer, "%d %llu %s", &id_next, &size, out_file);
 		if (file_name != NULL && strcmp(out_file, file_name) != 0)
 			strcpy(out_file, file_name);
@@ -37,17 +39,15 @@ int merge_chunks(char *file_name)
 		 * Read and write one full buffer at a time.
 		 */
 		while (size > BUF_SIZE) {
-			bytes += fread(buffer, 1, BUF_SIZE, fp_chunk);
-			bytes -= fwrite(buffer, 1, BUF_SIZE, fp_out);
+			n = fread(buffer, 1, BUF_SIZE, fp_chunk);
+			if (fwrite(buffer, 1, BUF_SIZE, fp_out) != n)
+				error(errno, "error writing to file");
 			size -= BUF_SIZE;
 		}
 		/* read and write the rest that did not fill buffer */
-		bytes += fread(buffer, 1, size, fp_chunk);		
-		bytes -= fwrite(buffer, 1, size, fp_out);
-		if (bytes != 0) {
-			fprintf(stderr, "bytes in != bytes out. Hmm\n");
-			exit(1);
-		}
+		n = fread(buffer, 1, size, fp_chunk);
+		if (fwrite(buffer, 1, size, fp_out) != n)
+			error(errno, "error writing to file");
 		fclose(fp_chunk);
 		snprintf(buffer, BUF_SIZE, "data%d.bin", id_next);
 	} while (id_next);
@@ -55,5 +55,5 @@ int merge_chunks(char *file_name)
 	fclose(fp_out);
 	free(buffer);
 
-	return bytes;
+	return 0;
 }
