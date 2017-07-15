@@ -3,12 +3,12 @@ all: prog
 prog:
 	@mkdir -p bin
 	make -C src
-	@cp src/prog ./bin
+	@mv src/prog ./bin
 
 debug:
 	@mkdir -p bin
 	make -C src debug
-	@cp src/prog ./bin/prog-debug
+	@mv src/prog ./bin/prog-debug
 
 # valgrind:
 # 	@mkdir -p bin
