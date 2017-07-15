@@ -2,7 +2,7 @@ CC=gcc-6
 OUTPUT_OPTION=-MMD -MP -o $@
 
 CFLAGS += -Wall -Ofast --std=c99 -Wvla -I../include
-MODULES := options file
+MODULES := options file error
 CFLAGS += $(patsubst %,-I%,$(MODULES))
 
 LIBS :=
